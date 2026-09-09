@@ -1,21 +1,29 @@
 import os
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from datetime import datetime
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from PIL import Image
-import io
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dnd.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB
 
-# Asegurar carpeta de uploads
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# ========== CONFIGURACIÓN DE RUTAS PERSISTENTES ==========
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+UPLOAD_FOLDER = os.path.join(DATA_DIR, 'uploads')
+DB_PATH = os.path.join(DATA_DIR, 'dnd.db')
+
+# Crear carpetas si no existen
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -57,7 +65,7 @@ class Ability(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(20), nullable=False)  # 'habilidad' o 'bonus'
+    type = db.Column(db.String(20), nullable=False)
     icon = db.Column(db.String(50), default='fa-star')
     order = db.Column(db.Integer, default=0)
 
@@ -110,7 +118,7 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-# ==================== API (protegidas) ====================
+# ==================== API ====================
 
 @app.route('/api/character', methods=['GET', 'PUT'])
 @login_required
@@ -162,26 +170,28 @@ def upload_sprite():
     if file.filename == '':
         return jsonify({'error': 'Archivo vacío'}), 400
     if file:
-        # Procesar imagen a WebP 200x200
         try:
             img = Image.open(file.stream)
             img.thumbnail((200, 200), Image.Resampling.LANCZOS)
-            # Convertir a RGB si es necesario (para PNG con transparencia)
             if img.mode in ('RGBA', 'LA'):
                 background = Image.new('RGB', img.size, (0,0,0))
                 background.paste(img, mask=img.split()[-1])
                 img = background
             elif img.mode != 'RGB':
                 img = img.convert('RGB')
-            # Guardar como WebP
             filename = f"{current_user.id}_{int(datetime.now().timestamp())}.webp"
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             img.save(filepath, 'webp', quality=80)
-            url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
+            url = f"/uploads/{filename}"
             return jsonify({'url': url})
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     return jsonify({'error': 'Error al procesar'}), 400
+
+# Ruta para servir archivos subidos
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/api/items', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
@@ -198,7 +208,6 @@ def api_items():
 
     if request.method == 'POST':
         data = request.json
-        # Calcular próximo order
         max_order = db.session.query(db.func.max(Item.order)).filter_by(user_id=current_user.id).scalar() or 0
         item = Item(
             user_id=current_user.id,
@@ -212,7 +221,6 @@ def api_items():
         return jsonify({'id': item.id, 'message': 'Item añadido'}), 201
 
     if request.method == 'PUT':
-        # Actualizar item (edición)
         data = request.json
         item = Item.query.filter_by(id=data['id'], user_id=current_user.id).first()
         if not item:
