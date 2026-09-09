@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Ficha de Personaje D&D</title>
+    <!-- Fuentes e iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'MedievalSharp', cursive;
+            background: #1a1a1a;
+            color: #e0d6c8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+        }
+        /* Cabecera */
+        .header {
+            background: linear-gradient(180deg, #2c241a, #1f1a14);
+            padding: 16px 20px;
+            border-bottom: 2px solid #b8860b;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+        }
+        .header h1 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.8rem;
+            color: #f0d080;
+            text-shadow: 0 0 8px #b8860b;
+            letter-spacing: 2px;
+        }
+        .header .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            font-size: 0.9rem;
+            color: #b8a68b;
+        }
+        .header .user-info a {
+            color: #d4b48c;
+            text-decoration: none;
+            border: 1px solid #b8860b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+        .header .user-info a:hover {
+            background: #b8860b;
+            color: #1a1a1a;
+        }
+        /* Contenido principal */
+        .container {
+            flex: 1;
+            padding: 16px 20px;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        /* Tarjetas */
+        .card {
+            background: #25201a;
+            border: 1px solid #3d3228;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            transition: 0.3s;
+        }
+        .card-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.3rem;
+            color: #f0d080;
+            border-bottom: 1px solid #3d3228;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title i {
+            color: #b8860b;
+        }
+        /* Pestañas */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            background: #1f1a14;
+            border-top: 2px solid #b8860b;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 6px 0;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.8);
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #8a7a6a;
+            font-size: 0.8rem;
+            font-family: 'MedievalSharp', cursive;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 12px;
+            flex: 1;
+        }
+        .tab-btn i {
+            font-size: 1.8rem;
+        }
+        .tab-btn.active {
+            color: #f0d080;
+            background: #2c241a;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Personaje */
+        .character-avatar {
+            text-align: center;
+        }
+        .character-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #b8860b;
+            object-fit: cover;
+            background: #2c241a;
+            box-shadow: 0 0 20px rgba(184,134,11,0.3);
+        }
+        .character-name {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin: 10px 0 6px;
+            color: #f0d080;
+        }
+        .hp-bar {
+            margin: 12px 0;
+        }
+        .hp-bar label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+        }
+        .progress-track {
+            width: 100%;
+            height: 18px;
+            background: #2c241a;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid #3d3228;
+            margin-top: 4px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #b22222, #dc143c);
+            border-radius: 30px;
+            transition: width 0.3s;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            margin: 8px 0;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #3d3228;
+        }
+        .stat-item .label {
+            color: #b8a68b;
+        }
+        .stat-item .value {
+            font-weight: bold;
+            color: #f0d080;
+        }
+        .btn {
+            background: #3d3228;
+            border: 1px solid #b8860b;
+            color: #e0d6c8;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: #b8860b;
+            color: #1a1a1a;
+        }
+        .btn-danger {
+            border-color: #8b0000;
+            color: #ff6666;
+        }
+        .btn-danger:hover {
+            background: #8b0000;
+            color: #fff;
+        }
+        .btn-primary {
+            background: #b8860b;
+            color: #1a1a1a;
+        }
+        .btn-primary:hover {
+            background: #d4a030;
+        }
+        /* Formularios */
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #b8a68b;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #1f1a14;
+            border: 1px solid #3d3228;
+            border-radius: 10px;
+            color: #e0d6c8;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 1rem;
+        }
+        .form-group select option {
+            background: #1f1a14;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.open {
+            display: flex;
+        }
+        .modal-content {
+            background: #25201a;
+            border: 2px solid #b8860b;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content h2 {
+            font-family: 'Cinzel Decorative', serif;
+            color: #f0d080;
+            margin-bottom: 16px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        /* Listas */
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #3d3228;
+        }
+        .list-item .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .list-item .left i {
+            font-size: 1.6rem;
+            color: #d4b48c;
+            width: 30px;
+            text-align: center;
+        }
+        .list-item .right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .badge {
+            background: #3d3228;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: #b8a68b;
+        }
+        /* Utilidades */
+        .text-center { text-align: center; }
+        .mt-10 { margin-top: 10px; }
+        .mb-10 { margin-bottom: 10px; }
+        .flex { display: flex; }
+        .gap-10 { gap: 10px; }
+        .wrap { flex-wrap: wrap; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #b8860b; border-radius: 10px; }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.4rem; }
+            .character-name { font-size: 1.5rem; }
+            .tab-btn { font-size: 0.7rem; }
+            .tab-btn i { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabecera -->
+    <header class="header">
+        <h1><i class="fas fa-dice-d20"></i> Ficha de Personaje</h1>
+        <div class="user-info" id="userInfo">
+            <span id="userName">Invitado</span>
+            <div>
+                <a href="#" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="#" id="logoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <div class="container">
+        <!-- TABS -->
+        <div id="tabContent">
+            <!-- Personaje -->
+            <div class="tab-content active" id="tab-personaje">
+                <div class="card character-avatar">
+                    <img id="spriteImg" src="https://via.placeholder.com/150/2c2c2c/ffffff?text=⚔️" alt="Sprite">
+                    <div class="character-name" id="charName">Aventurero</div>
+                    <div class="hp-bar">
+                        <label>
+                            <span>❤️ PS</span>
+                            <span id="hpText">10 / 10</span>
+                        </label>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="hpFill" style="width:100%"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="editCharBtn"><i class="fas fa-edit"></i> Editar personaje</button>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-dragon"></i> Atributos</div>
+                    <div class="stat-grid" id="statsDisplay">
+                        <div class="stat-item"><span class="label">⚡ Resistencia</span><span class="value" id="staminaText">10/10</span></div>
+                        <div class="stat-item"><span class="label">🔮 Maná</span><span class="value" id="manaText">10/10</span></div>
+                        <div class="stat-item"><span class="label">💪 Fuerza</span><span class="value" id="strengthText">10</span></div>
+                        <div class="stat-item"><span class="label">🏹 Destreza</span><span class="value" id="dexterityText">10</span></div>
+                        <div class="stat-item"><span class="label">🧠 Inteligencia</span><span class="value" id="intelligenceText">10</span></div>
+                        <div class="stat-item"><span class="label">👑 Carisma</span><span class="value" id="charismaText">10</span></div>
+                    </div>
+                    <button class="btn" id="editStatsBtn"><i class="fas fa-sliders-h"></i> Editar atributos</button>
+                </div>
+            </div>
+
+            <!-- Inventario -->
+            <div class="tab-content" id="tab-inventario">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-backpack"></i> Inventario</div>
+                    <div id="inventoryList"></div>
+                    <button class="btn btn-primary" id="addItemBtn"><i class="fas fa-plus"></i> Añadir objeto</button>
+                </div>
+            </div>
+
+            <!-- Habilidades -->
+            <div class="tab-content" id="tab-habilidades">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-scroll"></i> Habilidades y Bonus</div>
+                    <div id="abilityList"></div>
+                    <button class="btn btn-primary" id="addAbilityBtn"><i class="fas fa-plus"></i> Nueva habilidad o bonus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas inferiores -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="personaje"><i class="fas fa-user"></i> Personaje</button>
+        <button class="tab-btn" data-tab="inventario"><i class="fas fa-box"></i> Inventario</button>
+        <button class="tab-btn" data-tab="habilidades"><i class="fas fa-star"></i> Habilidades</button>
+    </div>
+
+    <!-- MODALES (se generan dinámicamente con JS) -->
+
+    <script>
+        // ========== ESTADO GLOBAL ==========
+        let currentUser = null;
+        let character = null;
+        let items = [];
+        let abilities = [];
+
+        // ========== ICONOS DISPONIBLES ==========
+        const ICON_LIST = [
+            { value: 'fa-flask', label: '🧪 Poción' },
+            { value: 'fa-sword', label: '⚔️ Espada' },
+            { value: 'fa-scroll', label: '📜 Pergamino' },
+            { value: 'fa-hat-wizard', label: '🧙 Sombrero' },
+            { value: 'fa-gem', label: '💎 Gema' },
+            { value: 'fa-ring', label: '💍 Anillo' },
+            { value: 'fa-shield-alt', label: '🛡️ Escudo' },
+            { value: 'fa-bow-arrow', label: '🏹 Arco' },
+            { value: 'fa-crown', label: '👑 Corona' },
+            { value: 'fa-skull', label: '💀 Calavera' },
+            { value: 'fa-book', label: '📖 Libro' },
+            { value: 'fa-magic', label: '✨ Magia' },
+            { value: 'fa-star', label: '⭐ Estrella' },
+            { value: 'fa-fire', label: '🔥 Fuego' },
+            { value: 'fa-dragon', label: '🐉 Dragón' },
+            { value: 'fa-box', label: '📦 Caja' }
+        ];
+
+        // ========== FUNCIONES DE UTILIDAD ==========
+        function getAuthHeaders() {
+            return { 'Content-Type': 'application/json' };
+        }
+
+        async function fetchJSON(url, options = {}) {
+            const res = await fetch(url, { ...options, headers: getAuthHeaders() });
+            if (!res.ok) throw new Error(await res.text());
+            return res.json();
+        }
+
+        function showModal(html) {
+            const existing = document.querySelector('.modal');
+            if (existing) existing.remove();
+            const div = document.createElement('div');
+            div.className = 'modal open';
+            div.innerHTML = `<div class="modal-content">${html}</div>`;
+            document.body.appendChild(div);
+            // Cerrar al hacer clic fuera
+            div.addEventListener('click', (e) => {
+                if (e.target === div) closeModal();
+            });
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('.modal');
+            if (modal) modal.remove();
+        }
+
+        // ========== AUTENTICACIÓN ==========
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/character');
+                if (res.ok) {
+                    const data = await res.json();
+                    currentUser = { username: 'Usuario' }; // lo obtendremos de la sesión
+                    character = data;
+                    renderAll();
+                    document.getElementById('userName').textContent = '👤 Usuario';
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'inline';
+                } else {
+                    currentUser = null;
+                    character = null;
+                    document.getElementById('userName').textContent = 'Invitado';
+                    document.getElementById('loginBtn').style.display = 'inline';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    renderAll();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginModal();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await fetch('/logout');
+            checkAuth();
+        });
+
+        function showLoginModal() {
+            showModal(`
+                <h2>Iniciar sesión</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Entrar</button>
+                    </div>
+                    <p class="mt-10 text-center">¿No tienes cuenta? <a href="#" id="showRegisterLink">Regístrate</a></p>
+                </form>
+            `);
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = new FormData(form);
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    body: data
+                });
+                if (res.redirected) {
+                    closeModal();
+                    checkAuth();
+                } else {
+                    alert('Error de login');
+                }
+            });
+            document.getElementById('showRegisterLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                closeModal();
+                showRegisterModal();
+            });
+        }
+
+        function showRegisterModal() {
+            showModal(`
+                <h2>Registrarse</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Registrarse</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = new FormData(form);
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    body: data
+                });
+                if (res.redirected) {
+                    closeModal();
+                    checkAuth();
+                } else {
+                    alert('Error en registro');
+                }
+            });
+        }
+
+        // ========== RENDERIZADO ==========
+        function renderAll() {
+            if (!character) {
+                // Mostrar datos vacíos o mensaje
+                document.getElementById('charName').textContent = 'Sin personaje';
+                document.getElementById('spriteImg').src = 'https://via.placeholder.com/150/2c2c2c/ffffff?text=⚔️';
+                document.getElementById('hpText').textContent = '0 / 0';
+                document.getElementById('hpFill').style.width = '0%';
+                return;
+            }
+            renderCharacter();
+            if (currentUser) {
+                fetchItems();
+                fetchAbilities();
+            }
+        }
+
+        function renderCharacter() {
+            const c = character;
+            document.getElementById('charName').textContent = c.name || 'Aventurero';
+            document.getElementById('spriteImg').src = c.sprite_url || 'https://via.placeholder.com/150/2c2c2c/ffffff?text=⚔️';
+            document.getElementById('hpText').textContent = `${c.hp_current} / ${c.hp_max}`;
+            const pct = c.hp_max > 0 ? (c.hp_current / c.hp_max) * 100 : 0;
+            document.getElementById('hpFill').style.width = Math.min(100, pct) + '%';
+            document.getElementById('staminaText').textContent = `${c.stamina_current}/${c.stamina_max}`;
+            document.getElementById('manaText').textContent = `${c.mana_current}/${c.mana_max}`;
+            document.getElementById('strengthText').textContent = c.strength;
+            document.getElementById('dexterityText').textContent = c.dexterity;
+            document.getElementById('intelligenceText').textContent = c.intelligence;
+            document.getElementById('charismaText').textContent = c.charisma;
+        }
+
+        // ========== INVENTARIO ==========
+        async function fetchItems() {
+            try {
+                items = await fetchJSON('/api/items');
+                renderItems();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderItems() {
+            const container = document.getElementById('inventoryList');
+            if (items.length === 0) {
+                container.innerHTML = '<p class="text-center" style="color:#8a7a6a;">Inventario vacío</p>';
+                return;
+            }
+            container.innerHTML = items.map(item => `
+                <div class="list-item">
+                    <div class="left">
+                        <i class="fas ${item.icon}"></i>
+                        <span>${item.name}</span>
+                    </div>
+                    <div class="right">
+                        <span class="badge">x${item.quantity}</span>
+                        <button class="btn btn-danger" data-id="${item.id}" onclick="deleteItem(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('¿Eliminar este objeto?')) return;
+            await fetch(`/api/items?id=${id}`, { method: 'DELETE' });
+            fetchItems();
+        }
+
+        document.getElementById('addItemBtn').addEventListener('click', () => {
+            if (!currentUser) { alert('Debes iniciar sesión'); return; }
+            showAddItemModal();
+        });
+
+        function showAddItemModal() {
+            const iconOptions = ICON_LIST.map(i => `<option value="${i.value}">${i.label}</option>`).join('');
+            showModal(`
+                <h2>Añadir objeto</h2>
+                <form id="addItemForm">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" name="quantity" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Icono</label>
+                        <select name="icon">${iconOptions}</select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Añadir</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('addItemForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    name: form.name.value,
+                    quantity: parseInt(form.quantity.value) || 1,
+                    icon: form.icon.value
+                };
+                await fetch('/api/items', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: getAuthHeaders()
+                });
+                closeModal();
+                fetchItems();
+            });
+        }
+
+        // ========== HABILIDADES ==========
+        async function fetchAbilities() {
+            try {
+                abilities = await fetchJSON('/api/abilities');
+                renderAbilities();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderAbilities() {
+            const container = document.getElementById('abilityList');
+            if (abilities.length === 0) {
+                container.innerHTML = '<p class="text-center" style="color:#8a7a6a;">Sin habilidades ni bonus</p>';
+                return;
+            }
+            container.innerHTML = abilities.map(a => `
+                <div class="list-item">
+                    <div class="left">
+                        <i class="fas ${a.icon}"></i>
+                        <span>${a.name}</span>
+                        <span class="badge">${a.type}</span>
+                    </div>
+                    <div class="right">
+                        <button class="btn btn-danger" data-id="${a.id}" onclick="deleteAbility(${a.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteAbility(id) {
+            if (!confirm('¿Eliminar?')) return;
+            await fetch(`/api/abilities?id=${id}`, { method: 'DELETE' });
+            fetchAbilities();
+        }
+
+        document.getElementById('addAbilityBtn').addEventListener('click', () => {
+            if (!currentUser) { alert('Debes iniciar sesión'); return; }
+            showAddAbilityModal();
+        });
+
+        function showAddAbilityModal() {
+            const iconOptions = ICON_LIST.map(i => `<option value="${i.value}">${i.label}</option>`).join('');
+            showModal(`
+                <h2>Nueva habilidad o bonus</h2>
+                <form id="addAbilityForm">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select name="type">
+                            <option value="habilidad">Habilidad</option>
+                            <option value="bonus">Bonus</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Icono</label>
+                        <select name="icon">${iconOptions}</select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Añadir</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('addAbilityForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    type: form.type.value,
+                    name: form.name.value,
+                    icon: form.icon.value
+                };
+                await fetch('/api/abilities', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: getAuthHeaders()
+                });
+                closeModal();
+                fetchAbilities();
+            });
+        }
+
+        // ========== EDICIÓN DE PERSONAJE Y ATRIBUTOS ==========
+        document.getElementById('editCharBtn').addEventListener('click', () => {
+            if (!currentUser) { alert('Debes iniciar sesión'); return; }
+            showEditCharModal();
+        });
+
+        function showEditCharModal() {
+            const c = character;
+            showModal(`
+                <h2>Editar personaje</h2>
+                <form id="editCharForm">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="name" value="${c.name || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>URL del sprite (imagen)</label>
+                        <input type="text" name="sprite_url" value="${c.sprite_url || ''}">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('editCharForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    name: form.name.value,
+                    sprite_url: form.sprite_url.value
+                };
+                await fetch('/api/character', {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                    headers: getAuthHeaders()
+                });
+                closeModal();
+                checkAuth(); // recarga personaje
+            });
+        }
+
+        document.getElementById('editStatsBtn').addEventListener('click', () => {
+            if (!currentUser) { alert('Debes iniciar sesión'); return; }
+            showEditStatsModal();
+        });
+
+        function showEditStatsModal() {
+            const c = character;
+            showModal(`
+                <h2>Editar atributos</h2>
+                <form id="editStatsForm">
+                    <div class="form-group"><label>PS actuales</label><input type="number" name="hp_current" value="${c.hp_current}"></div>
+                    <div class="form-group"><label>PS máximos</label><input type="number" name="hp_max" value="${c.hp_max}"></div>
+                    <div class="form-group"><label>Resistencia actual</label><input type="number" name="stamina_current" value="${c.stamina_current}"></div>
+                    <div class="form-group"><label>Resistencia máxima</label><input type="number" name="stamina_max" value="${c.stamina_max}"></div>
+                    <div class="form-group"><label>Maná actual</label><input type="number" name="mana_current" value="${c.mana_current}"></div>
+                    <div class="form-group"><label>Maná máximo</label><input type="number" name="mana_max" value="${c.mana_max}"></div>
+                    <div class="form-group"><label>Fuerza</label><input type="number" name="strength" value="${c.strength}"></div>
+                    <div class="form-group"><label>Destreza</label><input type="number" name="dexterity" value="${c.dexterity}"></div>
+                    <div class="form-group"><label>Inteligencia</label><input type="number" name="intelligence" value="${c.intelligence}"></div>
+                    <div class="form-group"><label>Carisma</label><input type="number" name="charisma" value="${c.charisma}"></div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('editStatsForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    hp_current: parseInt(form.hp_current.value),
+                    hp_max: parseInt(form.hp_max.value),
+                    stamina_current: parseInt(form.stamina_current.value),
+                    stamina_max: parseInt(form.stamina_max.value),
+                    mana_current: parseInt(form.mana_current.value),
+                    mana_max: parseInt(form.mana_max.value),
+                    strength: parseInt(form.strength.value),
+                    dexterity: parseInt(form.dexterity.value),
+                    intelligence: parseInt(form.intelligence.value),
+                    charisma: parseInt(form.charisma.value)
+                };
+                await fetch('/api/character', {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                    headers: getAuthHeaders()
+                });
+                closeModal();
+                checkAuth();
+            });
+        }
+
+        // ========== NAVEGACIÓN POR TABS ==========
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const tab = btn.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                document.getElementById(`tab-${tab}`).classList.add('active');
+            });
+        });
+
+        // ========== INICIO ==========
+        checkAuth();
+
+        // Recargar cada 30 segundos (por si cambian datos en otro lado)
+        setInterval(() => {
+            if (currentUser) {
+                checkAuth();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
