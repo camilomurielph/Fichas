@@ -3,12 +3,19 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from werkzeug.utils import secure_filename
+from PIL import Image
+import io
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dnd.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB
+
+# Asegurar carpeta de uploads
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -44,6 +51,7 @@ class Item(db.Model):
     name = db.Column(db.String(100), nullable=False)
     quantity = db.Column(db.Integer, default=1)
     icon = db.Column(db.String(50), default='fa-box')
+    order = db.Column(db.Integer, default=0)
 
 class Ability(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,6 +59,7 @@ class Ability(db.Model):
     name = db.Column(db.String(100), nullable=False)
     type = db.Column(db.String(20), nullable=False)  # 'habilidad' o 'bonus'
     icon = db.Column(db.String(50), default='fa-star')
+    order = db.Column(db.Integer, default=0)
 
 # ==================== LOGIN ====================
 
@@ -74,7 +83,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         flash('Usuario o contraseña incorrectos')
-    return render_template('index.html')  # el frontend maneja el login con fetch
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -88,7 +97,6 @@ def register():
         user = User(username=username, password_hash=hashed)
         db.session.add(user)
         db.session.commit()
-        # Crear personaje por defecto
         char = Character(user_id=user.id)
         db.session.add(char)
         db.session.commit()
@@ -145,29 +153,75 @@ def api_character():
         db.session.commit()
         return jsonify({'message': 'Personaje actualizado'})
 
-@app.route('/api/items', methods=['GET', 'POST', 'DELETE'])
+@app.route('/api/upload_sprite', methods=['POST'])
+@login_required
+def upload_sprite():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No se envió archivo'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'Archivo vacío'}), 400
+    if file:
+        # Procesar imagen a WebP 200x200
+        try:
+            img = Image.open(file.stream)
+            img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+            # Convertir a RGB si es necesario (para PNG con transparencia)
+            if img.mode in ('RGBA', 'LA'):
+                background = Image.new('RGB', img.size, (0,0,0))
+                background.paste(img, mask=img.split()[-1])
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            # Guardar como WebP
+            filename = f"{current_user.id}_{int(datetime.now().timestamp())}.webp"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            img.save(filepath, 'webp', quality=80)
+            url = f"/{app.config['UPLOAD_FOLDER']}/{filename}"
+            return jsonify({'url': url})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'error': 'Error al procesar'}), 400
+
+@app.route('/api/items', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
 def api_items():
     if request.method == 'GET':
-        items = Item.query.filter_by(user_id=current_user.id).all()
+        items = Item.query.filter_by(user_id=current_user.id).order_by(Item.order).all()
         return jsonify([{
             'id': i.id,
             'name': i.name,
             'quantity': i.quantity,
-            'icon': i.icon
+            'icon': i.icon,
+            'order': i.order
         } for i in items])
 
     if request.method == 'POST':
         data = request.json
+        # Calcular próximo order
+        max_order = db.session.query(db.func.max(Item.order)).filter_by(user_id=current_user.id).scalar() or 0
         item = Item(
             user_id=current_user.id,
             name=data['name'],
             quantity=data.get('quantity', 1),
-            icon=data.get('icon', 'fa-box')
+            icon=data.get('icon', 'fa-box'),
+            order=max_order + 1
         )
         db.session.add(item)
         db.session.commit()
         return jsonify({'id': item.id, 'message': 'Item añadido'}), 201
+
+    if request.method == 'PUT':
+        # Actualizar item (edición)
+        data = request.json
+        item = Item.query.filter_by(id=data['id'], user_id=current_user.id).first()
+        if not item:
+            return jsonify({'error': 'Item no encontrado'}), 404
+        item.name = data.get('name', item.name)
+        item.quantity = data.get('quantity', item.quantity)
+        item.icon = data.get('icon', item.icon)
+        db.session.commit()
+        return jsonify({'message': 'Item actualizado'})
 
     if request.method == 'DELETE':
         item_id = request.args.get('id')
@@ -178,29 +232,55 @@ def api_items():
             return jsonify({'message': 'Item eliminado'})
         return jsonify({'error': 'Item no encontrado'}), 404
 
-@app.route('/api/abilities', methods=['GET', 'POST', 'DELETE'])
+@app.route('/api/items/reorder', methods=['PUT'])
+@login_required
+def reorder_items():
+    data = request.json
+    ids = data.get('ids', [])
+    for order, item_id in enumerate(ids, start=1):
+        item = Item.query.filter_by(id=item_id, user_id=current_user.id).first()
+        if item:
+            item.order = order
+    db.session.commit()
+    return jsonify({'message': 'Orden actualizado'})
+
+@app.route('/api/abilities', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @login_required
 def api_abilities():
     if request.method == 'GET':
-        abilities = Ability.query.filter_by(user_id=current_user.id).all()
+        abilities = Ability.query.filter_by(user_id=current_user.id).order_by(Ability.order).all()
         return jsonify([{
             'id': a.id,
             'name': a.name,
             'type': a.type,
-            'icon': a.icon
+            'icon': a.icon,
+            'order': a.order
         } for a in abilities])
 
     if request.method == 'POST':
         data = request.json
+        max_order = db.session.query(db.func.max(Ability.order)).filter_by(user_id=current_user.id).scalar() or 0
         ability = Ability(
             user_id=current_user.id,
             name=data['name'],
             type=data['type'],
-            icon=data.get('icon', 'fa-star')
+            icon=data.get('icon', 'fa-star'),
+            order=max_order + 1
         )
         db.session.add(ability)
         db.session.commit()
-        return jsonify({'id': ability.id, 'message': 'Habilidad/Bonus añadido'}), 201
+        return jsonify({'id': ability.id, 'message': 'Añadido'}), 201
+
+    if request.method == 'PUT':
+        data = request.json
+        ability = Ability.query.filter_by(id=data['id'], user_id=current_user.id).first()
+        if not ability:
+            return jsonify({'error': 'No encontrado'}), 404
+        ability.name = data.get('name', ability.name)
+        ability.type = data.get('type', ability.type)
+        ability.icon = data.get('icon', ability.icon)
+        db.session.commit()
+        return jsonify({'message': 'Actualizado'})
 
     if request.method == 'DELETE':
         ability_id = request.args.get('id')
@@ -210,6 +290,18 @@ def api_abilities():
             db.session.commit()
             return jsonify({'message': 'Eliminado'})
         return jsonify({'error': 'No encontrado'}), 404
+
+@app.route('/api/abilities/reorder', methods=['PUT'])
+@login_required
+def reorder_abilities():
+    data = request.json
+    ids = data.get('ids', [])
+    for order, ability_id in enumerate(ids, start=1):
+        ability = Ability.query.filter_by(id=ability_id, user_id=current_user.id).first()
+        if ability:
+            ability.order = order
+    db.session.commit()
+    return jsonify({'message': 'Orden actualizado'})
 
 # ==================== INICIO ====================
 
