@@ -10,11 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=MedievalSharp&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'MedievalSharp', cursive;
             background: #1a1a1a;
@@ -23,8 +19,9 @@
             display: flex;
             flex-direction: column;
             padding-bottom: 70px;
+            user-select: none;
+            -webkit-user-select: none;
         }
-        /* Cabecera */
         .header {
             background: linear-gradient(180deg, #2c241a, #1f1a14);
             padding: 16px 20px;
@@ -59,7 +56,6 @@
             background: #b8860b;
             color: #1a1a1a;
         }
-        /* Contenido principal */
         .container {
             flex: 1;
             padding: 16px 20px;
@@ -67,7 +63,6 @@
             margin: 0 auto;
             width: 100%;
         }
-        /* Tarjetas */
         .card {
             background: #25201a;
             border: 1px solid #3d3228;
@@ -88,10 +83,7 @@
             align-items: center;
             gap: 10px;
         }
-        .card-title i {
-            color: #b8860b;
-        }
-        /* Pestañas */
+        .card-title i { color: #b8860b; }
         .tabs {
             display: flex;
             justify-content: space-around;
@@ -121,23 +113,11 @@
             border-radius: 12px;
             flex: 1;
         }
-        .tab-btn i {
-            font-size: 1.8rem;
-        }
-        .tab-btn.active {
-            color: #f0d080;
-            background: #2c241a;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        /* Personaje */
-        .character-avatar {
-            text-align: center;
-        }
+        .tab-btn i { font-size: 1.8rem; }
+        .tab-btn.active { color: #f0d080; background: #2c241a; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .character-avatar { text-align: center; }
         .character-avatar img {
             width: 120px;
             height: 120px;
@@ -154,9 +134,7 @@
             margin: 10px 0 6px;
             color: #f0d080;
         }
-        .hp-bar {
-            margin: 12px 0;
-        }
+        .hp-bar { margin: 12px 0; }
         .hp-bar label {
             display: flex;
             justify-content: space-between;
@@ -189,13 +167,8 @@
             padding: 6px 0;
             border-bottom: 1px dashed #3d3228;
         }
-        .stat-item .label {
-            color: #b8a68b;
-        }
-        .stat-item .value {
-            font-weight: bold;
-            color: #f0d080;
-        }
+        .stat-item .label { color: #b8a68b; }
+        .stat-item .value { font-weight: bold; color: #f0d080; }
         .btn {
             background: #3d3228;
             border: 1px solid #b8860b;
@@ -210,29 +183,13 @@
             align-items: center;
             gap: 8px;
         }
-        .btn:hover {
-            background: #b8860b;
-            color: #1a1a1a;
-        }
-        .btn-danger {
-            border-color: #8b0000;
-            color: #ff6666;
-        }
-        .btn-danger:hover {
-            background: #8b0000;
-            color: #fff;
-        }
-        .btn-primary {
-            background: #b8860b;
-            color: #1a1a1a;
-        }
-        .btn-primary:hover {
-            background: #d4a030;
-        }
-        /* Formularios */
-        .form-group {
-            margin-bottom: 12px;
-        }
+        .btn:hover { background: #b8860b; color: #1a1a1a; }
+        .btn-danger { border-color: #8b0000; color: #ff6666; }
+        .btn-danger:hover { background: #8b0000; color: #fff; }
+        .btn-primary { background: #b8860b; color: #1a1a1a; }
+        .btn-primary:hover { background: #d4a030; }
+        .btn-sm { padding: 4px 10px; font-size: 0.85rem; }
+        .form-group { margin-bottom: 12px; }
         .form-group label {
             display: block;
             margin-bottom: 4px;
@@ -248,8 +205,11 @@
             font-family: 'MedievalSharp', cursive;
             font-size: 1rem;
         }
-        .form-group select option {
-            background: #1f1a14;
+        .form-group input[type="file"] {
+            padding: 6px;
+            background: transparent;
+            border: none;
+            color: #b8a68b;
         }
         .modal {
             display: none;
@@ -261,9 +221,7 @@
             align-items: center;
             padding: 20px;
         }
-        .modal.open {
-            display: flex;
-        }
+        .modal.open { display: flex; }
         .modal-content {
             background: #25201a;
             border: 2px solid #b8860b;
@@ -285,20 +243,30 @@
             gap: 12px;
             margin-top: 16px;
         }
-        /* Listas */
         .list-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid #3d3228;
+            touch-action: none;
+            cursor: grab;
+            transition: background 0.2s;
         }
+        .list-item:active { cursor: grabbing; }
         .list-item .left {
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
         }
-        .list-item .left i {
+        .list-item .left i.fa-grip-lines {
+            color: #6a5a4a;
+            font-size: 1.2rem;
+            touch-action: none;
+        }
+        .list-item .left i.fa-grip-lines:active { color: #b8860b; }
+        .list-item .left .icon-main {
             font-size: 1.6rem;
             color: #d4b48c;
             width: 30px;
@@ -307,7 +275,7 @@
         .list-item .right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
         .badge {
             background: #3d3228;
@@ -316,7 +284,6 @@
             font-size: 0.8rem;
             color: #b8a68b;
         }
-        /* Utilidades */
         .text-center { text-align: center; }
         .mt-10 { margin-top: 10px; }
         .mb-10 { margin-bottom: 10px; }
@@ -325,18 +292,25 @@
         .wrap { flex-wrap: wrap; }
         .justify-between { justify-content: space-between; }
         .items-center { align-items: center; }
-
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; }
         ::-webkit-scrollbar-thumb { background: #b8860b; border-radius: 10px; }
-
-        /* Responsive */
         @media (max-width: 480px) {
             .header h1 { font-size: 1.4rem; }
             .character-name { font-size: 1.5rem; }
             .tab-btn { font-size: 0.7rem; }
             .tab-btn i { font-size: 1.5rem; }
+        }
+        /* Animación de arrastre */
+        .list-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+            background: #3d3228;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        .list-item.drag-over {
+            border-bottom: 3px solid #b8860b;
         }
     </style>
 </head>
@@ -355,7 +329,6 @@
 
     <!-- Contenido -->
     <div class="container">
-        <!-- TABS -->
         <div id="tabContent">
             <!-- Personaje -->
             <div class="tab-content active" id="tab-personaje">
@@ -414,8 +387,6 @@
         <button class="tab-btn" data-tab="habilidades"><i class="fas fa-star"></i> Habilidades</button>
     </div>
 
-    <!-- MODALES (se generan dinámicamente con JS) -->
-
     <script>
         // ========== ESTADO GLOBAL ==========
         let currentUser = null;
@@ -461,7 +432,6 @@
             div.className = 'modal open';
             div.innerHTML = `<div class="modal-content">${html}</div>`;
             document.body.appendChild(div);
-            // Cerrar al hacer clic fuera
             div.addEventListener('click', (e) => {
                 if (e.target === div) closeModal();
             });
@@ -478,7 +448,7 @@
                 const res = await fetch('/api/character');
                 if (res.ok) {
                     const data = await res.json();
-                    currentUser = { username: 'Usuario' }; // lo obtendremos de la sesión
+                    currentUser = { username: 'Usuario' };
                     character = data;
                     renderAll();
                     document.getElementById('userName').textContent = '👤 Usuario';
@@ -492,9 +462,7 @@
                     document.getElementById('logoutBtn').style.display = 'none';
                     renderAll();
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         document.getElementById('loginBtn').addEventListener('click', (e) => {
@@ -531,16 +499,9 @@
                 e.preventDefault();
                 const form = e.target;
                 const data = new FormData(form);
-                const res = await fetch('/login', {
-                    method: 'POST',
-                    body: data
-                });
-                if (res.redirected) {
-                    closeModal();
-                    checkAuth();
-                } else {
-                    alert('Error de login');
-                }
+                const res = await fetch('/login', { method: 'POST', body: data });
+                if (res.redirected) { closeModal(); checkAuth(); }
+                else alert('Error de login');
             });
             document.getElementById('showRegisterLink').addEventListener('click', (e) => {
                 e.preventDefault();
@@ -571,23 +532,15 @@
                 e.preventDefault();
                 const form = e.target;
                 const data = new FormData(form);
-                const res = await fetch('/register', {
-                    method: 'POST',
-                    body: data
-                });
-                if (res.redirected) {
-                    closeModal();
-                    checkAuth();
-                } else {
-                    alert('Error en registro');
-                }
+                const res = await fetch('/register', { method: 'POST', body: data });
+                if (res.redirected) { closeModal(); checkAuth(); }
+                else alert('Error en registro');
             });
         }
 
         // ========== RENDERIZADO ==========
         function renderAll() {
             if (!character) {
-                // Mostrar datos vacíos o mensaje
                 document.getElementById('charName').textContent = 'Sin personaje';
                 document.getElementById('spriteImg').src = 'https://via.placeholder.com/150/2c2c2c/ffffff?text=⚔️';
                 document.getElementById('hpText').textContent = '0 / 0';
@@ -621,6 +574,7 @@
             try {
                 items = await fetchJSON('/api/items');
                 renderItems();
+                makeSortable('inventoryList', 'items');
             } catch (e) { console.error(e); }
         }
 
@@ -631,16 +585,16 @@
                 return;
             }
             container.innerHTML = items.map(item => `
-                <div class="list-item">
+                <div class="list-item" data-id="${item.id}">
                     <div class="left">
-                        <i class="fas ${item.icon}"></i>
+                        <i class="fas fa-grip-lines drag-handle"></i>
+                        <i class="fas ${item.icon} icon-main"></i>
                         <span>${item.name}</span>
                     </div>
                     <div class="right">
                         <span class="badge">x${item.quantity}</span>
-                        <button class="btn btn-danger" data-id="${item.id}" onclick="deleteItem(${item.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button class="btn btn-sm" onclick="editItem(${item.id})"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -650,6 +604,51 @@
             if (!confirm('¿Eliminar este objeto?')) return;
             await fetch(`/api/items?id=${id}`, { method: 'DELETE' });
             fetchItems();
+        }
+
+        function editItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+            const iconOptions = ICON_LIST.map(i => `<option value="${i.value}" ${i.value === item.icon ? 'selected' : ''}>${i.label}</option>`).join('');
+            showModal(`
+                <h2>Editar objeto</h2>
+                <form id="editItemForm">
+                    <input type="hidden" name="id" value="${item.id}">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="name" value="${item.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" name="quantity" value="${item.quantity}" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Icono</label>
+                        <select name="icon">${iconOptions}</select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('editItemForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    id: parseInt(form.id.value),
+                    name: form.name.value,
+                    quantity: parseInt(form.quantity.value) || 1,
+                    icon: form.icon.value
+                };
+                await fetch('/api/items', {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                    headers: getAuthHeaders()
+                });
+                closeModal();
+                fetchItems();
+            });
         }
 
         document.getElementById('addItemBtn').addEventListener('click', () => {
@@ -703,6 +702,7 @@
             try {
                 abilities = await fetchJSON('/api/abilities');
                 renderAbilities();
+                makeSortable('abilityList', 'abilities');
             } catch (e) { console.error(e); }
         }
 
@@ -713,16 +713,16 @@
                 return;
             }
             container.innerHTML = abilities.map(a => `
-                <div class="list-item">
+                <div class="list-item" data-id="${a.id}">
                     <div class="left">
-                        <i class="fas ${a.icon}"></i>
+                        <i class="fas fa-grip-lines drag-handle"></i>
+                        <i class="fas ${a.icon} icon-main"></i>
                         <span>${a.name}</span>
                         <span class="badge">${a.type}</span>
                     </div>
                     <div class="right">
-                        <button class="btn btn-danger" data-id="${a.id}" onclick="deleteAbility(${a.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button class="btn btn-sm" onclick="editAbility(${a.id})"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteAbility(${a.id})"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -732,6 +732,54 @@
             if (!confirm('¿Eliminar?')) return;
             await fetch(`/api/abilities?id=${id}`, { method: 'DELETE' });
             fetchAbilities();
+        }
+
+        function editAbility(id) {
+            const ability = abilities.find(a => a.id === id);
+            if (!ability) return;
+            const iconOptions = ICON_LIST.map(i => `<option value="${i.value}" ${i.value === ability.icon ? 'selected' : ''}>${i.label}</option>`).join('');
+            showModal(`
+                <h2>Editar habilidad/bonus</h2>
+                <form id="editAbilityForm">
+                    <input type="hidden" name="id" value="${ability.id}">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select name="type">
+                            <option value="habilidad" ${ability.type === 'habilidad' ? 'selected' : ''}>Habilidad</option>
+                            <option value="bonus" ${ability.type === 'bonus' ? 'selected' : ''}>Bonus</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="name" value="${ability.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Icono</label>
+                        <select name="icon">${iconOptions}</select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            `);
+            document.getElementById('editAbilityForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    id: parseInt(form.id.value),
+                    type: form.type.value,
+                    name: form.name.value,
+                    icon: form.icon.value
+                };
+                await fetch('/api/abilities', {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                    headers: getAuthHeaders()
+                });
+                closeModal();
+                fetchAbilities();
+            });
         }
 
         document.getElementById('addAbilityBtn').addEventListener('click', () => {
@@ -783,6 +831,135 @@
             });
         }
 
+        // ========== DRAG & DROP (táctil y mouse) ==========
+        function makeSortable(containerId, type) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            let dragItem = null;
+            let dragGhost = null;
+            let touchOffsetY = 0;
+            let initialIndex = -1;
+
+            // Función para obtener los IDs en orden actual
+            function getOrderedIds() {
+                const children = Array.from(container.children);
+                return children.map(el => parseInt(el.dataset.id)).filter(id => !isNaN(id));
+            }
+
+            // Reordenar en servidor
+            async function saveOrder() {
+                const ids = getOrderedIds();
+                if (ids.length < 2) return;
+                const endpoint = type === 'items' ? '/api/items/reorder' : '/api/abilities/reorder';
+                await fetch(endpoint, {
+                    method: 'PUT',
+                    body: JSON.stringify({ ids }),
+                    headers: getAuthHeaders()
+                });
+                // Refrescar listas para obtener el orden persistido
+                if (type === 'items') fetchItems();
+                else fetchAbilities();
+            }
+
+            // Eventos táctiles
+            container.addEventListener('touchstart', (e) => {
+                const handle = e.target.closest('.drag-handle');
+                if (!handle) return;
+                const item = handle.closest('.list-item');
+                if (!item) return;
+                dragItem = item;
+                const rect = item.getBoundingClientRect();
+                touchOffsetY = e.touches[0].clientY - rect.top;
+                initialIndex = Array.from(container.children).indexOf(item);
+                item.classList.add('dragging');
+            }, { passive: true });
+
+            container.addEventListener('touchmove', (e) => {
+                if (!dragItem) return;
+                e.preventDefault();
+                const touchY = e.touches[0].clientY;
+                const containerRect = container.getBoundingClientRect();
+                const newY = touchY - containerRect.top - touchOffsetY;
+                dragItem.style.transform = `translateY(${newY}px)`;
+                // Cambiar orden visual
+                const items = Array.from(container.children);
+                const currentIndex = items.indexOf(dragItem);
+                let targetIndex = -1;
+                for (let i = 0; i < items.length; i++) {
+                    if (i === currentIndex) continue;
+                    const rect = items[i].getBoundingClientRect();
+                    const mid = rect.top + rect.height/2;
+                    if (touchY < mid) { targetIndex = i; break; }
+                }
+                if (targetIndex === -1 && touchY > items[items.length-1].getBoundingClientRect().bottom) {
+                    targetIndex = items.length;
+                }
+                if (targetIndex !== -1 && targetIndex !== currentIndex) {
+                    const referenceNode = targetIndex > currentIndex ? items[targetIndex+1] : items[targetIndex];
+                    container.insertBefore(dragItem, referenceNode);
+                }
+            }, { passive: false });
+
+            container.addEventListener('touchend', () => {
+                if (!dragItem) return;
+                dragItem.style.transform = '';
+                dragItem.classList.remove('dragging');
+                saveOrder();
+                dragItem = null;
+            }, { passive: true });
+
+            // Eventos de mouse (para escritorio)
+            let mouseDown = false;
+            container.addEventListener('mousedown', (e) => {
+                const handle = e.target.closest('.drag-handle');
+                if (!handle) return;
+                const item = handle.closest('.list-item');
+                if (!item) return;
+                mouseDown = true;
+                dragItem = item;
+                const rect = item.getBoundingClientRect();
+                touchOffsetY = e.clientY - rect.top;
+                initialIndex = Array.from(container.children).indexOf(item);
+                item.classList.add('dragging');
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!mouseDown || !dragItem) return;
+                e.preventDefault();
+                const clientY = e.clientY;
+                const containerRect = container.getBoundingClientRect();
+                const newY = clientY - containerRect.top - touchOffsetY;
+                dragItem.style.transform = `translateY(${newY}px)`;
+                const items = Array.from(container.children);
+                const currentIndex = items.indexOf(dragItem);
+                let targetIndex = -1;
+                for (let i = 0; i < items.length; i++) {
+                    if (i === currentIndex) continue;
+                    const rect = items[i].getBoundingClientRect();
+                    const mid = rect.top + rect.height/2;
+                    if (clientY < mid) { targetIndex = i; break; }
+                }
+                if (targetIndex === -1 && clientY > items[items.length-1].getBoundingClientRect().bottom) {
+                    targetIndex = items.length;
+                }
+                if (targetIndex !== -1 && targetIndex !== currentIndex) {
+                    const referenceNode = targetIndex > currentIndex ? items[targetIndex+1] : items[targetIndex];
+                    container.insertBefore(dragItem, referenceNode);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (mouseDown && dragItem) {
+                    dragItem.style.transform = '';
+                    dragItem.classList.remove('dragging');
+                    saveOrder();
+                    dragItem = null;
+                }
+                mouseDown = false;
+            });
+        }
+
         // ========== EDICIÓN DE PERSONAJE Y ATRIBUTOS ==========
         document.getElementById('editCharBtn').addEventListener('click', () => {
             if (!currentUser) { alert('Debes iniciar sesión'); return; }
@@ -793,14 +970,15 @@
             const c = character;
             showModal(`
                 <h2>Editar personaje</h2>
-                <form id="editCharForm">
+                <form id="editCharForm" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>Nombre</label>
                         <input type="text" name="name" value="${c.name || ''}">
                     </div>
                     <div class="form-group">
-                        <label>URL del sprite (imagen)</label>
-                        <input type="text" name="sprite_url" value="${c.sprite_url || ''}">
+                        <label>Seleccionar imagen (opcional)</label>
+                        <input type="file" name="sprite_file" accept="image/*">
+                        <small style="color:#8a7a6a;">Se convertirá a WebP 200x200</small>
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
@@ -811,17 +989,34 @@
             document.getElementById('editCharForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const form = e.target;
-                const data = {
-                    name: form.name.value,
-                    sprite_url: form.sprite_url.value
-                };
+                const name = form.name.value;
+                // Si hay archivo, subirlo
+                let sprite_url = character.sprite_url;
+                const fileInput = form.querySelector('input[name="sprite_file"]');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const uploadRes = await fetch('/api/upload_sprite', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (uploadRes.ok) {
+                        const uploadData = await uploadRes.json();
+                        sprite_url = uploadData.url;
+                    } else {
+                        alert('Error al subir la imagen');
+                        return;
+                    }
+                }
+                // Actualizar personaje
                 await fetch('/api/character', {
                     method: 'PUT',
-                    body: JSON.stringify(data),
+                    body: JSON.stringify({ name, sprite_url }),
                     headers: getAuthHeaders()
                 });
                 closeModal();
-                checkAuth(); // recarga personaje
+                checkAuth();
             });
         }
 
@@ -889,13 +1084,7 @@
 
         // ========== INICIO ==========
         checkAuth();
-
-        // Recargar cada 30 segundos (por si cambian datos en otro lado)
-        setInterval(() => {
-            if (currentUser) {
-                checkAuth();
-            }
-        }, 30000);
+        setInterval(() => { if (currentUser) checkAuth(); }, 30000);
     </script>
 </body>
 </html>
