@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Ficha de Personaje D&D</title>
+
+    <!-- PWA / iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ficha D&D">
+    <meta name="theme-color" content="#b8860b">
+    <link rel="apple-touch-icon" href="/static/icons/icon-180.png">
+    <link rel="icon" type="image/png" href="/static/icons/icon-180.png">
+    <link rel="manifest" href="/static/icons/manifest.json">
+
     <!-- Fuentes e iconos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -301,7 +311,6 @@
             .tab-btn { font-size: 0.7rem; }
             .tab-btn i { font-size: 1.5rem; }
         }
-        /* Animación de arrastre */
         .list-item.dragging {
             opacity: 0.5;
             transform: scale(0.95);
@@ -836,17 +845,14 @@
             const container = document.getElementById(containerId);
             if (!container) return;
             let dragItem = null;
-            let dragGhost = null;
             let touchOffsetY = 0;
-            let initialIndex = -1;
 
-            // Función para obtener los IDs en orden actual
             function getOrderedIds() {
-                const children = Array.from(container.children);
-                return children.map(el => parseInt(el.dataset.id)).filter(id => !isNaN(id));
+                return Array.from(container.children)
+                    .map(el => parseInt(el.dataset.id))
+                    .filter(id => !isNaN(id));
             }
 
-            // Reordenar en servidor
             async function saveOrder() {
                 const ids = getOrderedIds();
                 if (ids.length < 2) return;
@@ -856,12 +862,10 @@
                     body: JSON.stringify({ ids }),
                     headers: getAuthHeaders()
                 });
-                // Refrescar listas para obtener el orden persistido
                 if (type === 'items') fetchItems();
                 else fetchAbilities();
             }
 
-            // Eventos táctiles
             container.addEventListener('touchstart', (e) => {
                 const handle = e.target.closest('.drag-handle');
                 if (!handle) return;
@@ -870,7 +874,6 @@
                 dragItem = item;
                 const rect = item.getBoundingClientRect();
                 touchOffsetY = e.touches[0].clientY - rect.top;
-                initialIndex = Array.from(container.children).indexOf(item);
                 item.classList.add('dragging');
             }, { passive: true });
 
@@ -881,7 +884,6 @@
                 const containerRect = container.getBoundingClientRect();
                 const newY = touchY - containerRect.top - touchOffsetY;
                 dragItem.style.transform = `translateY(${newY}px)`;
-                // Cambiar orden visual
                 const items = Array.from(container.children);
                 const currentIndex = items.indexOf(dragItem);
                 let targetIndex = -1;
@@ -908,7 +910,6 @@
                 dragItem = null;
             }, { passive: true });
 
-            // Eventos de mouse (para escritorio)
             let mouseDown = false;
             container.addEventListener('mousedown', (e) => {
                 const handle = e.target.closest('.drag-handle');
@@ -919,7 +920,6 @@
                 dragItem = item;
                 const rect = item.getBoundingClientRect();
                 touchOffsetY = e.clientY - rect.top;
-                initialIndex = Array.from(container.children).indexOf(item);
                 item.classList.add('dragging');
                 e.preventDefault();
             });
@@ -990,7 +990,6 @@
                 e.preventDefault();
                 const form = e.target;
                 const name = form.name.value;
-                // Si hay archivo, subirlo
                 let sprite_url = character.sprite_url;
                 const fileInput = form.querySelector('input[name="sprite_file"]');
                 if (fileInput.files.length > 0) {
@@ -1009,7 +1008,6 @@
                         return;
                     }
                 }
-                // Actualizar personaje
                 await fetch('/api/character', {
                     method: 'PUT',
                     body: JSON.stringify({ name, sprite_url }),
