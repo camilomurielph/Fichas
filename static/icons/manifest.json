@@ -1,0 +1,18 @@
+{
+  "name": "Ficha de Personaje D&D",
+  "short_name": "Ficha D&D",
+  "description": "Ficha técnica de tu personaje de D&D: atributos, inventario y habilidades.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a1a",
+  "theme_color": "#b8860b",
+  "icons": [
+    {
+      "src": "/static/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
